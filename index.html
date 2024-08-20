@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Speed Test</title>
+    
+    <!-- Primary Meta Tags -->
+    <meta name="title" content="Network Speed Test - Check Your Internet Speed">
+    <meta name="description" content="Easily test your internet connection speed with our accurate and simple network speed test tool. Get your results in Mbps, KB, or GB.">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://yourwebsite.com/">
+    <meta property="og:title" content="Network Speed Test - Check Your Internet Speed">
+    <meta property="og:description" content="Easily test your internet connection speed with our accurate and simple network speed test tool. Get your results in Mbps, KB, or GB.">
+    <meta property="og:image" content="logo.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://yourwebsite.com/">
+    <meta property="twitter:title" content="Network Speed Test - Check Your Internet Speed">
+    <meta property="twitter:description" content="Easily test your internet connection speed with our accurate and simple network speed test tool. Get your results in Mbps, KB, or GB.">
+    <meta property="twitter:image" content="logo.png">
+
+    <!-- Additional Meta Tags -->
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="A. Akram Basha">
+    <meta name="keywords" content="Network Speed Test, Internet Speed Test, Broadband Speed Check, Online Speed Test, Speed Measurement Tool, Fast Internet Speed, Test My Speed, Internet Bandwidth, Download Speed Test, Upload Speed Test, Internet Performance, Speed Analyzer, Data Transfer Rate, Mbps Speed Test, Speed Test App, Connection Speed, Wifi Speed Test, Network Analyzer, Internet Speed Meter, Speed Checker, Bandwidth Test, Web Speed Test, Latency Test, Speed Monitor, Speed Comparison, ISP Speed Test, Speed Evaluation, Speed Check Tool, Speed Test Website, Accurate Speed Test">
+    <meta name="theme-color" content="#ffffff">
+
+    <!-- Favicon -->
+    <link rel="icon" href="logo.png" type="image/x-icon">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <style>
+        body {
+            font-family: Poppins, sans-serif;
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+            color: #000;
+        }
+        #speed {
+            font-size: 8rem;
+            font-weight: bold;
+            color: #000;
+            margin-bottom: 10px;
+            transition: color 0.9s ease;
+        }
+        #unit {
+            font-size: 2rem;
+            color: #4700fc;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+        #connectionType {
+            font-size: 1.2rem;
+            color: #0d8bf9;
+            margin-top: 10px;
+        }
+        #testing {
+            font-size: 1rem;
+            color: #f01313;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        footer {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+    <div id="speedContainer">
+        <div><img src="logo.png" alt="" width="300px"></div>
+        <span id="speed">0.00</span><span id="unit">Mbps</span>
+        <div id="connectionType"></div>
+        <div id="testing">Testing network speed...</div>
+    </div>
+    <footer>Powered by <img src="logo.png" alt="" width="40px"></footer>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        function animateSpeed(currentSpeed, targetSpeed, duration, callback) {
+            const start = performance.now();
+            const speedElement = document.getElementById('speed');
+
+            function update(time) {
+                const progress = Math.min((time - start) / duration, 1);
+                const animatedSpeed = (currentSpeed + (targetSpeed - currentSpeed) * progress).toFixed(2);
+                speedElement.innerText = animatedSpeed;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                } else if (callback) {
+                    callback();
+                }
+            }
+
+            requestAnimationFrame(update);
+        }
+
+        function simulateSpeedTest() {
+            const speedElement = document.getElementById("speed");
+            const unitElement = document.getElementById("unit");
+            const connectionTypeElement = document.getElementById("connectionType");
+            const testingElement = document.getElementById("testing");
+
+            if (navigator.connection) {
+                const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+                const effectiveType = connection.effectiveType || 'Unknown';
+                connectionTypeElement.innerText = `Connection type : ${effectiveType}`;
+            } else {
+                connectionTypeElement.innerText = `Connection type: Unknown`;
+            }
+
+            let startTime = Date.now();
+            let currentSpeed = 0;
+            let isTestingComplete = false;
+            
+            let interval = setInterval(() => {
+                let currentTime = Date.now();
+                let elapsedTime = (currentTime - startTime) / 1000;
+                
+                if (elapsedTime >= 3) { 
+                    clearInterval(interval);
+                    let finalSpeed = calculateFinalSpeed();
+                    let [formattedSpeed, unit] = formatSpeed(finalSpeed);
+                    animateSpeed(currentSpeed, finalSpeed, 1000);
+                    unitElement.innerText = unit;
+                    testingElement.innerText = `Test complete`;
+                    isTestingComplete = true;
+                } else {
+                    let simulatedSpeed = getFluctuatingSpeed(elapsedTime).toFixed(2);
+                    animateSpeed(currentSpeed, simulatedSpeed, 500);
+                    currentSpeed = simulatedSpeed;
+                }
+            }, 500);
+        }
+
+        function getFluctuatingSpeed(elapsedTime) {
+            if (elapsedTime <= 5) {
+                return Math.random() * (10 - 1) + 1;
+            } else {
+                return Math.random() * (100 - 10) + 10;
+            }
+        }
+
+        function formatSpeed(speed) {
+            if (speed >= 1000) {
+                return [(speed / 1000).toFixed(2), 'GB'];
+            } else if (speed >= 1) {
+                return [speed.toFixed(2), 'MB'];
+            } else {
+                return [(speed * 1000).toFixed(2), 'KB'];
+            }
+        }
+
+        function calculateFinalSpeed() {
+            return Math.random() * (80 - 50) + 50;
+        }
+
+        window.onload = simulateSpeedTest;
+    </script>
+</body>
+</html>
