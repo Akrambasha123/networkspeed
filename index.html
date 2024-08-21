@@ -32,6 +32,7 @@
     <!-- Favicon -->
     <link rel="icon" href="logo.png" type="image/x-icon">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <style>
         body {
@@ -120,41 +121,30 @@
             if (navigator.connection) {
                 const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
                 const effectiveType = connection.effectiveType || 'Unknown';
-                connectionTypeElement.innerText = `Connection type : ${effectiveType}`;
+                connectionTypeElement.innerText = `Connection type: ${effectiveType}`;
             } else {
                 connectionTypeElement.innerText = `Connection type: Unknown`;
             }
 
-            let startTime = Date.now();
-            let currentSpeed = 0;
-            let isTestingComplete = false;
-            
+            let speeds = [];
             let interval = setInterval(() => {
-                let currentTime = Date.now();
-                let elapsedTime = (currentTime - startTime) / 1000;
-                
-                if (elapsedTime >= 3) { 
-                    clearInterval(interval);
-                    let finalSpeed = calculateFinalSpeed();
-                    let [formattedSpeed, unit] = formatSpeed(finalSpeed);
-                    animateSpeed(currentSpeed, finalSpeed, 1000);
-                    unitElement.innerText = unit;
-                    testingElement.innerText = `Test complete`;
-                    isTestingComplete = true;
-                } else {
-                    let simulatedSpeed = getFluctuatingSpeed(elapsedTime).toFixed(2);
-                    animateSpeed(currentSpeed, simulatedSpeed, 500);
-                    currentSpeed = simulatedSpeed;
-                }
-            }, 500);
+                let simulatedSpeed = getFluctuatingSpeed().toFixed(2);
+                speeds.push(parseFloat(simulatedSpeed));
+                animateSpeed(parseFloat(speedElement.innerText), simulatedSpeed, 500);
+            }, 1000);
+
+            setTimeout(() => {
+                clearInterval(interval);
+                let finalSpeed = calculateAverageSpeed(speeds);
+                let [formattedSpeed, unit] = formatSpeed(finalSpeed);
+                animateSpeed(parseFloat(speedElement.innerText), formattedSpeed, 1000);
+                unitElement.innerText = unit;
+                testingElement.innerText = "Test complete";
+            }, 10000);
         }
 
-        function getFluctuatingSpeed(elapsedTime) {
-            if (elapsedTime <= 5) {
-                return Math.random() * (10 - 1) + 1;
-            } else {
-                return Math.random() * (100 - 10) + 10;
-            }
+        function getFluctuatingSpeed() {
+            return Math.random() * (100 - 10) + 10;
         }
 
         function formatSpeed(speed) {
@@ -167,8 +157,9 @@
             }
         }
 
-        function calculateFinalSpeed() {
-            return Math.random() * (80 - 50) + 50;
+        function calculateAverageSpeed(speeds) {
+            let total = speeds.reduce((acc, curr) => acc + curr, 0);
+            return total / speeds.length;
         }
 
         window.onload = simulateSpeedTest;
