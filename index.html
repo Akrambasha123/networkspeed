@@ -3,166 +3,443 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Network Speed Test</title>
+    <title>Internet Speed Test</title>
+    <meta name="description" content="Test your internet connection bandwidth to locations around the world with this interactive broadband speed test.">
     
-    <!-- Primary Meta Tags -->
-    <meta name="title" content="Network Speed Test - Check Your Internet Speed">
-    <meta name="description" content="Easily test your internet connection speed with our accurate and simple network speed test tool. Get your results in Mbps, KB, or GB.">
-
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://yourwebsite.com/">
-    <meta property="og:title" content="Network Speed Test - Check Your Internet Speed">
-    <meta property="og:description" content="Easily test your internet connection speed with our accurate and simple network speed test tool. Get your results in Mbps, KB, or GB.">
-    <meta property="og:image" content="logo.png">
-
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://yourwebsite.com/">
-    <meta property="twitter:title" content="Network Speed Test - Check Your Internet Speed">
-    <meta property="twitter:description" content="Easily test your internet connection speed with our accurate and simple network speed test tool. Get your results in Mbps, KB, or GB.">
-    <meta property="twitter:image" content="logo.png">
-
-    <!-- Additional Meta Tags -->
-    <meta name="robots" content="index, follow">
-    <meta name="author" content="A. Akram Basha">
-    <meta name="keywords" content="Network Speed Test, Internet Speed Test, Broadband Speed Check, Online Speed Test, Speed Measurement Tool, Fast Internet Speed, Test My Speed, Internet Bandwidth, Download Speed Test, Upload Speed Test, Internet Performance, Speed Analyzer, Data Transfer Rate, Mbps Speed Test, Speed Test App, Connection Speed, Wifi Speed Test, Network Analyzer, Internet Speed Meter, Speed Checker, Bandwidth Test, Web Speed Test, Latency Test, Speed Monitor, Speed Comparison, ISP Speed Test, Speed Evaluation, Speed Check Tool, Speed Test Website, Accurate Speed Test">
-    <meta name="theme-color" content="#ffffff">
-
-    <!-- Favicon -->
-    <link rel="icon" href="logo.png" type="image/x-icon">
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-main: #2b2b2b;
+            --text-muted: #757575;
+            --text-light: #b3b3b3;
+            --accent: #2b2b2b;
+            --border-color: #e5e5e5;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
-            font-family: Poppins, sans-serif;
-            background-color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            height: 100vh;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            overflow: hidden; /* No scroll */
+        }
+
+        header {
+            padding: 2rem 3rem;
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-            height: 100vh;
-            margin: 0;
-            text-align: center;
-            color: #000;
         }
-        #speed {
-            font-size: 8rem;
-            font-weight: bold;
-            color: #000;
-            margin-bottom: 10px;
-            transition: color 0.9s ease;
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: #d82c20; /* Fast.com red style */
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
-        #unit {
-            font-size: 2rem;
-            color: #4700fc;
-            margin-left: 10px;
-            vertical-align: middle;
+
+        .spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(0,0,0,0.05);
+            border-top-color: var(--text-muted);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            opacity: 0;
+            transition: opacity 0.3s;
         }
-        #connectionType {
+
+        .spinner.active {
+            opacity: 1;
+        }
+
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding-bottom: 10vh;
+        }
+
+        .speed-type {
             font-size: 1.2rem;
-            color: #0d8bf9;
-            margin-top: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+            font-weight: 500;
         }
-        #testing {
+
+        .speed-display {
+            display: flex;
+            align-items: baseline;
+            gap: 15px;
+        }
+
+        .speed-value {
+            font-size: 8rem;
+            font-weight: 400;
+            line-height: 1;
+            color: var(--text-main);
+            font-variant-numeric: tabular-nums;
+            transition: color 0.3s;
+        }
+
+        .speed-value.testing {
+            color: var(--text-muted);
+        }
+
+        .speed-unit {
+            font-size: 2.5rem;
+            font-weight: 400;
+            color: var(--text-muted);
+        }
+
+        .more-info-btn {
+            margin-top: 40px;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            padding: 10px 25px;
+            border-radius: 25px;
             font-size: 1rem;
-            color: #f01313;
-            font-weight: bold;
-            margin-top: 10px;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: none;
         }
-        footer {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
+
+        .more-info-btn:hover {
+            background: #f5f5f5;
+            border-color: #d4d4d4;
+        }
+
+        .details-section {
+            display: flex;
+            gap: 60px;
+            margin-top: 40px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+            transform: translateY(10px);
+        }
+
+        .details-section.show {
+            opacity: 1;
+            pointer-events: all;
+            transform: translateY(0);
+        }
+
+        .detail-block {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .detail-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .detail-val-container {
+            display: flex;
+            align-items: baseline;
+            gap: 5px;
+        }
+
+        .detail-val {
+            font-size: 2.5rem;
+            font-weight: 500;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .detail-unit {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+        }
+
+        .footer-info {
+            display: flex;
+            gap: 40px;
+            margin-top: 40px;
+            color: var(--text-muted);
             font-size: 0.9rem;
-            color: #aaa;
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+        
+        .footer-info.show {
+            opacity: 1;
+        }
+
+        .footer-item strong {
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        .reload-btn {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: white;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-main);
+            font-size: 1.2rem;
+            transition: all 0.2s;
+            display: none;
+        }
+
+        .reload-btn:hover {
+            background: #f5f5f5;
+            transform: rotate(90deg);
+        }
+
+        @media (max-width: 768px) {
+            .speed-value { font-size: 5rem; }
+            .speed-unit { font-size: 1.5rem; }
+            .details-section { gap: 30px; flex-direction: column; text-align: center; }
+            .detail-block { align-items: center; }
+            .footer-info { flex-direction: column; gap: 10px; text-align: center; }
         }
     </style>
 </head>
 <body>
-    <div id="speedContainer">
-        <div><img src="logo.png" alt="" width="300px"></div>
-        <span id="speed">0.00</span><span id="unit">Mbps</span>
-        <div id="connectionType"></div>
-        <div id="testing">Testing network speed...</div>
+
+    <header>
+        <div class="logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            SPEED
+        </div>
+        <div class="spinner" id="spinner"></div>
+    </header>
+
+    <div class="main-container">
+        <div class="speed-type" id="speed-type">Your Internet speed is</div>
+        
+        <div class="speed-display">
+            <div class="speed-value testing" id="main-speed">0</div>
+            <div class="speed-unit">Mbps</div>
+        </div>
+
+        <button class="more-info-btn" id="btn-more-info" onclick="showMoreInfo()">Show more info</button>
+
+        <div class="details-section" id="details-section">
+            <div class="detail-block">
+                <div class="detail-label">Latency</div>
+                <div class="detail-val-container">
+                    <div class="detail-val" id="val-ping">-</div>
+                    <div class="detail-unit">ms</div>
+                </div>
+                <div style="font-size:0.8rem; color:var(--text-light); margin-top: -5px;">Unloaded</div>
+            </div>
+
+            <div class="detail-block">
+                <div class="detail-label">Upload</div>
+                <div class="detail-val-container">
+                    <div class="detail-val" id="val-upload">-</div>
+                    <div class="detail-unit">Mbps</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-info" id="footer-info">
+            <div class="footer-item" id="client-info">Client: <strong>Fetching...</strong></div>
+            <div class="footer-item" id="server-info">Server: <strong>Cloudflare Edge</strong></div>
+        </div>
     </div>
-    <footer>Powered by <img src="logo.png" alt="" width="40px"></footer>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <button class="reload-btn" id="btn-reload" onclick="resetAndStartTest()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.59-9.21l5.62 5.62"/></svg>
+    </button>
 
     <script>
-        function animateSpeed(currentSpeed, targetSpeed, duration, callback) {
-            const start = performance.now();
-            const speedElement = document.getElementById('speed');
+        const ENDPOINTS = {
+            ping: 'https://speed.cloudflare.com/__down?bytes=0',
+            download: 'https://speed.cloudflare.com/__down?bytes=25000000', // 25MB
+            upload: 'https://speed.cloudflare.com/__up'
+        };
 
-            function update(time) {
-                const progress = Math.min((time - start) / duration, 1);
-                const animatedSpeed = (currentSpeed + (targetSpeed - currentSpeed) * progress).toFixed(2);
-                speedElement.innerText = animatedSpeed;
-                
-                if (progress < 1) {
-                    requestAnimationFrame(update);
-                } else if (callback) {
-                    callback();
+        const mainSpeedEl = document.getElementById('main-speed');
+        const spinner = document.getElementById('spinner');
+        const btnMoreInfo = document.getElementById('btn-more-info');
+        const detailsSection = document.getElementById('details-section');
+        const valPing = document.getElementById('val-ping');
+        const valUpload = document.getElementById('val-upload');
+        const clientInfo = document.getElementById('client-info');
+        const footerInfo = document.getElementById('footer-info');
+        const btnReload = document.getElementById('btn-reload');
+
+        let isTesting = true;
+
+        // Fetch ISP info using a CORS-friendly public API for file:// execution
+        async function fetchClientInfo() {
+            try {
+                const res = await fetch('https://ipwho.is/');
+                const data = await res.json();
+                if(data.success) {
+                    clientInfo.innerHTML = `Client: <strong>${data.city}, ${data.connection.isp}</strong><br><span style="font-size:0.8rem;">IP: ${data.ip}</span>`;
+                } else {
+                    clientInfo.innerHTML = `Client: <strong>Unknown</strong>`;
+                }
+            } catch(e) {
+                // Fallback to simple IP fetch if ipwho.is fails
+                try {
+                    const fallbackRes = await fetch('https://api.ipify.org?format=json');
+                    const fallbackData = await fallbackRes.json();
+                    clientInfo.innerHTML = `Client: <strong>IP: ${fallbackData.ip}</strong>`;
+                } catch(err) {
+                    clientInfo.innerHTML = `Client: <strong>Unknown</strong>`;
                 }
             }
-
-            requestAnimationFrame(update);
         }
 
-        function simulateSpeedTest() {
-            const speedElement = document.getElementById("speed");
-            const unitElement = document.getElementById("unit");
-            const connectionTypeElement = document.getElementById("connectionType");
-            const testingElement = document.getElementById("testing");
+        async function startDownloadTest() {
+            spinner.classList.add('active');
+            mainSpeedEl.classList.add('testing');
+            
+            return new Promise((resolve) => {
+                const xhr = new XMLHttpRequest();
+                const startTime = performance.now();
+                let lastLoaded = 0;
+                
+                // Cache buster to ensure it actually downloads
+                xhr.open('GET', ENDPOINTS.download + '&t=' + Date.now(), true);
+                xhr.responseType = 'arraybuffer';
+                
+                xhr.onprogress = (e) => {
+                    const duration = (performance.now() - startTime) / 1000;
+                    if (duration > 0.2 && e.loaded > 0) {
+                        const speedBps = (e.loaded * 8) / duration;
+                        const speedMbps = speedBps / 1000000;
+                        mainSpeedEl.innerText = speedMbps.toFixed(1);
+                    }
+                };
 
-            if (navigator.connection) {
-                const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-                const effectiveType = connection.effectiveType || 'Unknown';
-                connectionTypeElement.innerText = `Connection type: ${effectiveType}`;
-            } else {
-                connectionTypeElement.innerText = `Connection type: Unknown`;
+                xhr.onload = xhr.onerror = () => {
+                    const duration = (performance.now() - startTime) / 1000;
+                    const finalLoaded = xhr.response ? xhr.response.byteLength : (lastLoaded || 25000000);
+                    const speedMbps = (finalLoaded * 8 / duration) / 1000000;
+                    
+                    if(!isNaN(speedMbps) && speedMbps > 0) {
+                        mainSpeedEl.innerText = speedMbps.toFixed(0);
+                    }
+                    mainSpeedEl.classList.remove('testing');
+                    spinner.classList.remove('active');
+                    btnMoreInfo.style.display = 'block';
+                    btnReload.style.display = 'flex';
+                    resolve();
+                };
+                
+                xhr.send();
+            });
+        }
+
+        async function startPingTest() {
+            let pings = [];
+            for (let i = 0; i < 5; i++) {
+                const start = performance.now();
+                try {
+                    await fetch(ENDPOINTS.ping + '&t=' + Date.now(), { cache: 'no-store' });
+                    pings.push(performance.now() - start);
+                    valPing.innerText = Math.round(pings[pings.length-1]);
+                } catch(e) {}
             }
-
-            let speeds = [];
-            let interval = setInterval(() => {
-                let simulatedSpeed = getFluctuatingSpeed().toFixed(2);
-                speeds.push(parseFloat(simulatedSpeed));
-                animateSpeed(parseFloat(speedElement.innerText), simulatedSpeed, 500);
-            }, 1000);
-
-            setTimeout(() => {
-                clearInterval(interval);
-                let finalSpeed = calculateAverageSpeed(speeds);
-                let [formattedSpeed, unit] = formatSpeed(finalSpeed);
-                animateSpeed(parseFloat(speedElement.innerText), formattedSpeed, 1000);
-                unitElement.innerText = unit;
-                testingElement.innerText = "Test complete";
-            }, 10000);
-        }
-
-        function getFluctuatingSpeed() {
-            return Math.random() * (100 - 10) + 10;
-        }
-
-        function formatSpeed(speed) {
-            if (speed >= 1000) {
-                return [(speed / 1000).toFixed(2), 'GB'];
-            } else if (speed >= 1) {
-                return [speed.toFixed(2), 'MB'];
-            } else {
-                return [(speed * 1000).toFixed(2), 'KB'];
+            if (pings.length > 0) {
+                const avg = pings.reduce((a,b)=>a+b, 0) / pings.length;
+                valPing.innerText = Math.round(avg);
             }
         }
 
-        function calculateAverageSpeed(speeds) {
-            let total = speeds.reduce((acc, curr) => acc + curr, 0);
-            return total / speeds.length;
+        async function startUploadTest() {
+            return new Promise((resolve) => {
+                const size = 15000000; // 15MB
+                const data = new Uint8Array(size);
+                for(let i=0; i<size; i+=65536) crypto.getRandomValues(new Uint8Array(data.buffer, i, Math.min(65536, size-i)));
+
+                const xhr = new XMLHttpRequest();
+                const startTime = performance.now();
+                
+                xhr.upload.onprogress = (e) => {
+                    const duration = (performance.now() - startTime) / 1000;
+                    if (duration > 0.2 && e.loaded > 0) {
+                        const speedBps = (e.loaded * 8) / duration;
+                        const speedMbps = speedBps / 1000000;
+                        valUpload.innerText = speedMbps.toFixed(1);
+                    }
+                };
+
+                xhr.onload = xhr.onerror = () => {
+                    const duration = (performance.now() - startTime) / 1000;
+                    const speedMbps = (size * 8 / duration) / 1000000;
+                    if(!isNaN(speedMbps) && speedMbps > 0) {
+                        valUpload.innerText = speedMbps.toFixed(1);
+                    }
+                    resolve();
+                };
+
+                xhr.open('POST', ENDPOINTS.upload, true);
+                xhr.setRequestHeader('Content-Type', 'application/octet-stream');
+                xhr.send(data);
+            });
         }
 
-        window.onload = simulateSpeedTest;
+        async function showMoreInfo() {
+            btnMoreInfo.style.display = 'none';
+            detailsSection.classList.add('show');
+            footerInfo.classList.add('show');
+            spinner.classList.add('active');
+
+            valPing.innerText = '...';
+            valUpload.innerText = '...';
+
+            await startPingTest();
+            await startUploadTest();
+            
+            spinner.classList.remove('active');
+        }
+
+        function resetAndStartTest() {
+            // Reset UI
+            btnReload.style.display = 'none';
+            detailsSection.classList.remove('show');
+            footerInfo.classList.remove('show');
+            mainSpeedEl.innerText = '0';
+            valPing.innerText = '-';
+            valUpload.innerText = '-';
+            
+            // Restart
+            startDownloadTest();
+        }
+
+        // Initialize
+        window.onload = () => {
+            fetchClientInfo();
+            startDownloadTest();
+        };
     </script>
 </body>
 </html>
